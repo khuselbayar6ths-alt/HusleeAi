@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Хүслээ AI - Монгол хэлний AI туслах</title>
+<meta name="description" content="Монгол хэл дээрх AI туслах: боловсрол, бизнес, бичиг, код.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--fg:#f8fafc;--mut:#94a3b8;--bd:#334155;--ac:#6366f1;--acfg:#fff;--me:#4338ca}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg);height:100dvh;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0)}
+header{padding:14px 18px;background:var(--card);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px}
+header b{font-size:20px}header b span{color:var(--ac)}
+header small{color:var(--mut);flex:1}
+#new{border:1px solid var(--bd);background:none;color:var(--mut);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+#new:hover{color:var(--fg);border-color:var(--ac)}
+.presets{display:flex;gap:8px;padding:12px 18px;overflow-x:auto;border-bottom:1px solid var(--bd);scrollbar-width:none}
+.p{flex:0 0 auto;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:999px;padding:8px 14px;font-size:14px;cursor:pointer;transition:.2s}
+.p.on{background:var(--ac);color:var(--acfg);border-color:var(--ac)}
+#info{padding:10px 18px;color:var(--mut);font-size:14px;text-align:center}
+#chat{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;max-width:760px;width:100%;margin:0 auto}
+.m{padding:12px 16px;border-radius:16px;max-width:88%;white-space:pre-wrap;line-height:1.55;word-break:break-word;position:relative}
+.u{align-self:flex-end;background:var(--me)}
+.a{align-self:flex-start;background:var(--card);border:1px solid var(--bd)}
+.a pre{background:#0b1220;border:1px solid var(--bd);border-radius:8px;padding:10px;overflow-x:auto;margin:8px 0;font-size:13px;white-space:pre}
+.a code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
+.cp{display:block;margin-top:8px;background:none;border:0;color:var(--mut);font-size:12px;cursor:pointer}
+.cp:hover{color:var(--fg)}
+.ex{display:flex;flex-wrap:wrap;gap:8px}
+.ex button{border:1px dashed var(--bd);background:var(--card);color:var(--mut);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:13px;text-align:left;transition:.2s}
+.ex button:hover{background:var(--bd);color:var(--fg)}
+.bar{display:flex;gap:8px;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0));max-width:760px;width:100%;margin:0 auto}
+textarea{flex:1;resize:none;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:12px;padding:12px;font:inherit;height:48px;max-height:140px;outline:none}
+textarea:focus{border-color:var(--ac)}
+#go{border:0;background:var(--ac);color:var(--acfg);border-radius:12px;padding:0 20px;font-weight:600;cursor:pointer}
+#go:disabled{opacity:.5;cursor:not-allowed}
+.dots::after{content:"...";animation:b 1s infinite}@keyframes b{50%{opacity:.2}}
+#cfg{border:1px solid var(--bd);background:none;color:var(--mut);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+#cfg:hover{color:var(--fg);border-color:var(--ac)}
+#md{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9;padding:calc(16px + env(safe-area-inset-top,0)) 16px 16px;overflow-y:auto}
+#md.on{display:block}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:16px;max-width:680px;margin:0 auto;padding:20px;line-height:1.6;font-size:14px}
+.box h2{font-size:18px;margin-bottom:10px}.box h3{font-size:15px;margin:16px 0 6px;color:var(--ac)}
+.box ol{padding-left:20px}.box li{margin:4px 0}
+.box input{width:100%;border:1px solid var(--bd);background:var(--bg);color:var(--fg);border-radius:10px;padding:10px;font:inherit;margin:6px 0}
+.box pre{background:#0b1220;border:1px solid var(--bd);border-radius:8px;padding:10px;overflow:auto;max-height:240px;font-size:12px;white-space:pre}
+.box button{border:0;background:var(--ac);color:var(--acfg);border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;margin:6px 6px 0 0}
+.box button.g{background:none;border:1px solid var(--bd);color:var(--fg)}
+</style>
+</head>
+<body>
+<header><b>Хүслээ <span>AI</span></b><small>Монгол хэлний AI туслах</small><button id="new">+ Шинэ яриа</button><button id="cfg">⚙ Тохиргоо</button></header>
+<div class="presets" id="presets"></div>
+<div id="info"></div>
+<div id="chat"></div>
+<div class="bar"><textarea id="in" rows="1" placeholder="Асуултаа бичнэ үү..."></textarea><button id="go">Илгээх</button></div>
+
+<div id="md"><div class="box">
+<h2>⚙ Тохиргоо ба заавар</h2>
+<h3>1. GitHub Pages</h3>
+<ol><li>Энэ файлыг <b>index.html</b> нэрээр GitHub repo-доо upload хийнэ.</li>
+<li>Settings → Pages → Deploy from a branch → main / (root).</li></ol>
+<h3>2. AI холбох (Cloudflare Worker)</h3>
+<ol><li>dash.cloudflare.com → Workers &amp; Pages → Create → Hello World.</li>
+<li>Доорх кодыг хуулж Worker-т буулгана. <code>ALLOWED_ORIGIN</code>-д өөрийн GitHub Pages домэйнийг бичнэ.</li>
+<li>Settings → Variables and Secrets → <code>ANTHROPIC_API_KEY</code> (Secret) нэмнэ.</li>
+<li>Worker-ийн URL-ийг доор оруулж хадгална.</li></ol>
+<button class="g" id="cpw">Worker кодыг хуулах</button>
+<pre id="wkv"></pre>
+<h3>3. Worker URL</h3>
+<input id="api" placeholder="https://huslee.tanii-ner.workers.dev">
+<button id="sv">Хадгалах</button><button class="g" id="cl">Хаах</button>
+<p style="color:var(--mut);margin-top:10px">API key-г энэ файлд хэзээ ч бүү бич. Зөвхөн Worker-ийн Secret-д хадгална.</p>
+</div></div>
+<script type="text/plain" id="wk">// Cloudflare Worker: API key-г нууцаар хадгалж, сайтаас ирсэн хүсэлтийг Claude руу дамжуулна.
+// Secret: ANTHROPIC_API_KEY  (Workers -> Settings -> Variables and Secrets)
+const ALLOWED_ORIGIN = "https://TANII-NER.github.io"; // өөрийн GitHub Pages домэйнээр солино
+
+export default {
+  async fetch(req, env) {
+    const cors = {
+      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    };
+    if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+    if (req.method !== "POST") return new Response("Method not allowed", { status: 405, headers: cors });
+
+    let body;
+    try { body = await req.json(); } catch { return new Response("Bad JSON", { status: 400, headers: cors }); }
+    const messages = (body.messages || []).slice(-20).map(m => ({
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: String(m.content).slice(0, 4000),
+    }));
+    if (!messages.length) return new Response("No messages", { status: 400, headers: cors });
+
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-5-5",
+        max_tokens: 1000,
+        system: String(body.system || "").slice(0, 1500),
+        messages,
+      }),
+    });
+    const data = await r.json();
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+    return new Response(JSON.stringify({ text }), {
+      status: r.ok ? 200 : 502,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
+  },
+};
+</script>
+<script>
+// ====== ТОХИРГОО ======
+// Worker-ийн хаягийг ⚙ Тохиргоо цэснээс оруулна. API key-г энд БҮҮ бич.
+let API_URL = "";
+try{API_URL=localStorage.getItem("huslee_api")||""}catch(e){}
+// =======================
+
+const P=[
+{n:"📚 Боловсрол",d:"ЭЕШ, хичээл, эссе, гадаад хэлний туслах",s:"Чи Хүслээ AI-ийн Боловсролын туслах. ЭЕШ-д бэлдэж буй сурагч, оюутнуудад монгол хэлээр хичээлийн сэдэв тайлбарлаж, дасгал үүсгэж, эссе/рефератын бүтэц санал болгож, гадаад хэлний дасгал хийлгэнэ.",e:["Квадрат тэгшитгэлийг тайлбарла","Эссены бүтэц гарга","Англи хэлний 5 дасгал өг"]},
+{n:"💼 Бизнес",d:"Зар, пост, бүтээгдэхүүний тайлбар, уриа үг",s:"Чи Хүслээ AI-ийн Бизнес, маркетингийн туслах. Жижиг бизнес эрхлэгчдэд Facebook/Instagram постын эх, зар, уриа үг, бүтээгдэхүүний тайлбар, имэйл, товч бизнес төлөвлөгөө монгол хэлээр бичиж өгнө.",e:["Кофе шопны Instagram пост бич","Гутлын дэлгүүрийн уриа үг гарга","Бизнес төлөвлөгөөний бүтэц өг"]},
+{n:"🌿 Амьдрал",d:"Төлөвлөгөө, аялал, зөвлөгөө, яриа",s:"Чи Хүслээ AI-ийн хувийн туслах. Өдрийн хуваарь, аяллын маршрут, эрүүл амьдралын ерөнхий зөвлөгөө өгч, дулаахан ярилцана. Эмнэлгийн оношийг хийхгүй.",e:["Хөвсгөл рүү 3 хоногийн аялал төлөвлө","Өглөөний дадал зөвлө","Өнөөдрийн хуваарь гаргахад тусал"]},
+{n:"✍️ Монгол бичиг",d:"Зөв бичих, найруулга, албан бичиг",s:"Чи Хүслээ AI-ийн Монгол хэл, бичгийн туслах. Албан бичиг, мэдээ, тайлангийн эхийг стандартын дагуу засаж, зөв бичих дүрэм, найруулгын алдааг зааж, шүлэг, өгүүллэгт санал өгнө.",e:["Чөлөө авах өргөдөл бичих загвар","Энэ өгүүлбэрийг зас: ...","Намрын тухай богино шүлэг бич"]},
+{n:"💻 Код",d:"Алдаа засах, код бичих, архитектур",s:"Чи Хүслээ AI-ийн Код, технологийн туслах. Монгол хэлээр програмчлалын алдааг олж засаж, Python/JavaScript зэрэг кодыг бичиж, тайлбарлаж, вэб болон аппын бүтцийн санаа өгнө.",e:["Python дээр жагсаалт эрэмбэлэх жишээ","JavaScript-д async гэж юу вэ?","Todo апп-ын бүтэц санал болго"]}];
+
+const $=id=>document.getElementById(id);
+const KEY="huslee_v1";
+let cur=0,busy=false,hist={};          // hist[i] = [{role,content}]
+try{const s=JSON.parse(localStorage.getItem(KEY)||"{}");hist=s.hist||{};cur=s.cur||0}catch(e){}
+const H=()=>hist[cur]||(hist[cur]=[]);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({hist,cur}))}catch(e){}};
+
+function esc(t){return t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function md(t){ // жижиг markdown: код блок, inline код, тод үсэг
+  return esc(t).replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>"<pre><code>"+c+"</code></pre>")
+    .replace(/`([^`\n]+)`/g,"<code>$1</code>").replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>");
+}
+function bubble(role,text){
+  const d=document.createElement("div");d.className="m "+(role=="user"?"u":"a");
+  if(role=="user")d.textContent=text;else setA(d,text);
+  $("chat").appendChild(d);$("chat").scrollTop=1e9;return d;
+}
+function setA(d,text,done){
+  d.innerHTML=md(text);d.dataset.raw=text;
+  if(done){const b=document.createElement("button");b.className="cp";b.textContent="Хуулах";
+    b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(text);b.textContent="Хуулсан ✓"};d.appendChild(b)}
+}
+function render(){
+  $("presets").innerHTML="";
+  P.forEach((p,i)=>{const b=document.createElement("button");b.className="p"+(i==cur?" on":"");b.textContent=p.n;
+    b.onclick=()=>{if(busy)return;cur=i;save();render()};$("presets").appendChild(b)});
+  $("info").textContent=P[cur].d;$("chat").innerHTML="";
+  if(!H().length){
+    const ex=document.createElement("div");ex.className="ex";
+    P[cur].e.forEach(t=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{$("in").value=t;send()};ex.appendChild(b)});
+    $("chat").appendChild(ex);
+  }else H().forEach(m=>bubble(m.role,m.content)),Array.from(document.querySelectorAll(".a")).forEach(d=>setA(d,d.dataset.raw,true));
+}
+async function ask(messages,onText){
+  if(!API_URL)throw new Error("setup");
+  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({system:P[cur].s+" Үргэлж монгол хэлээр, товч бөгөөд ойлгомжтой хариулна.",messages:messages.slice(-20)})});
+  if(!r.ok)throw new Error("http "+r.status);
+  const j=await r.json();if(!j.text)throw new Error("empty");return j.text;
+}
+async function send(){
+  const t=$("in").value.trim();if(!t||busy)return;
+  busy=true;$("go").disabled=true;$("in").value="";$("in").style.height="48px";
+  const ex=document.querySelector(".ex");if(ex)ex.remove();
+  H().push({role:"user",content:t});bubble("user",t);
+  const out=bubble("a","");out.innerHTML='<span class="dots">Бодож байна</span>';
+  try{
+    const text=await ask(H());
+    H().push({role:"assistant",content:text});setA(out,text,true);save();
+  }catch(e){
+    H().pop();
+    out.textContent=e.message=="setup"
+      ?"AI холбогдоогүй байна. дээд талын ⚙ Тохиргоо дээр дарж Cloudflare Worker-ийн хаягаа оруулна уу."
+      :"Алдаа гарлаа. Дахин оролдоно уу.";
+  }
+  busy=false;$("go").disabled=false;$("chat").scrollTop=1e9;
+}
+$("go").onclick=send;
+$("new").onclick=()=>{if(busy)return;hist[cur]=[];save();render()};
+$("in").addEventListener("input",e=>{e.target.style.height="48px";e.target.style.height=Math.min(e.target.scrollHeight,140)+"px"});
+$("in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();send()}});
+const wkt=document.getElementById("wk").textContent.trim();$("wkv").textContent=wkt;$("api").value=API_URL;
+$("cfg").onclick=()=>$("md").classList.add("on");
+$("cl").onclick=()=>$("md").classList.remove("on");
+$("cpw").onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(wkt);$("cpw").textContent="Хуулсан ✓"};
+$("sv").onclick=()=>{API_URL=$("api").value.trim();try{localStorage.setItem("huslee_api",API_URL)}catch(e){}$("md").classList.remove("on")};
+render();
+</script>
+</body>
+</html>
